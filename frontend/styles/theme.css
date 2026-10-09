@@ -1,0 +1,603 @@
+/* ==========================================================================
+   SpiritIQ Design System & Theme Stylesheet
+   Midnight Navy • Electric Teal • Glassmorphic Surfaces • Fluid Animations
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Core Colors */
+  --color-bg-canvas: #060B18;
+  --color-bg-base: #0B132B;
+  --color-bg-card: rgba(16, 28, 58, 0.75);
+  --color-bg-card-hover: rgba(23, 40, 80, 0.85);
+  --color-bg-glass: rgba(14, 25, 52, 0.65);
+  --color-bg-elevated: #15244C;
+  --color-bg-input: rgba(11, 20, 44, 0.8);
+  
+  /* Brand Accents */
+  --color-teal-glow: #00F0FF;
+  --color-teal-primary: #00C2CB;
+  --color-teal-dark: #008B94;
+  --color-emerald: #06D6A0;
+  --color-amber: #FFB703;
+  --color-coral: #FF5470;
+  --color-indigo: #6366F1;
+  
+  /* Borders & Highlights */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(0, 240, 255, 0.35);
+  --border-card: rgba(255, 255, 255, 0.12);
+  
+  /* Typography */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --text-inverse: #060B18;
+  
+  /* Radii & Shadows */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 25px rgba(0, 240, 255, 0.25);
+  --shadow-teal: 0 4px 20px rgba(0, 194, 203, 0.3);
+  
+  /* Transitions */
+  --trans-fast: 0.15s ease;
+  --trans-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --trans-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Global Streamlit App Reset & Ambient Background */
+.stApp {
+  background-color: var(--color-bg-canvas) !important;
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(6, 214, 160, 0.05) 0%, transparent 50%) !important;
+  background-attachment: fixed !important;
+  color: var(--text-main) !important;
+  font-family: var(--font-body) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  color: var(--text-main) !important;
+  letter-spacing: -0.02em !important;
+}
+
+p, span, label, div {
+  font-family: var(--font-body);
+}
+
+/* Sidebar Custom Styling */
+section[data-testid="stSidebar"] {
+  background-color: #070D1F !important;
+  border-right: 1px solid var(--border-subtle) !important;
+}
+
+section[data-testid="stSidebar"] hr {
+  border-color: var(--border-subtle) !important;
+}
+
+/* SpiritIQ Hero Banner & Headers */
+.spirit-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: var(--radius-full);
+  color: var(--color-teal-glow);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.spirit-gradient-text {
+  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 40%, var(--color-teal-glow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.spirit-teal-text {
+  color: var(--color-teal-glow);
+}
+
+/* Card Components */
+.spirit-card {
+  background: var(--color-bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--trans-smooth), border-color var(--trans-smooth), box-shadow var(--trans-smooth);
+}
+
+.spirit-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-glow);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.spirit-card-sm {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all var(--trans-smooth);
+}
+
+.spirit-card-sm:hover {
+  border-color: var(--border-glow);
+  background: var(--color-bg-card-hover);
+}
+
+/* Feature Badge & Icon Container */
+.spirit-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(99, 102, 241, 0.2));
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: var(--color-teal-glow);
+  margin-bottom: 14px;
+}
+
+/* Destination Showcase Cards */
+.dest-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--trans-bounce);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dest-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--color-teal-glow);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+.dest-card-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0d1b38, #182b52);
+}
+
+.dest-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dest-card:hover .dest-card-img {
+  transform: scale(1.08);
+}
+
+.dest-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(6, 11, 24, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-teal-glow);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.dest-card-body {
+  padding: 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dest-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.dest-card-tagline {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.dest-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.dest-pill {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.dest-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  margin-top: 6px;
+}
+
+.dest-price-label {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+}
+
+.dest-price-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-emerald);
+}
+
+/* Step Progress Indicator (How It Works) */
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.step-card {
+  position: relative;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  transition: all var(--trans-smooth);
+}
+
+.step-card:hover {
+  border-color: var(--border-glow);
+  background: var(--color-bg-card-hover);
+  transform: translateY(-2px);
+}
+
+.step-num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(0, 240, 255, 0.2);
+  margin-bottom: 10px;
+}
+
+.step-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 6px;
+}
+
+.step-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* Metric Pill Badges */
+.metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-size: 0.85rem;
+}
+
+.metric-pill-accent {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.25);
+  color: var(--color-teal-glow);
+}
+
+/* Timeline & Itinerary Day Styles */
+.itinerary-day-box {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  margin-bottom: 18px;
+  overflow: hidden;
+  transition: border-color var(--trans-smooth);
+}
+
+.itinerary-day-box:hover {
+  border-color: rgba(0, 240, 255, 0.35);
+}
+
+.itinerary-header {
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.itinerary-day-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-teal-glow);
+  letter-spacing: 0.06em;
+}
+
+.itinerary-day-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.activity-item {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  transition: background var(--trans-fast);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item:hover {
+  background: rgba(0, 240, 255, 0.03);
+}
+
+.activity-time {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-teal-primary);
+  background: rgba(0, 194, 203, 0.1);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.activity-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-name {
+  font-weight: 600;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+}
+
+.activity-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.activity-loc {
+  font-size: 0.78rem;
+  color: var(--text-subtle);
+  margin-top: 4px;
+}
+
+.activity-cost {
+  font-weight: 700;
+  color: var(--color-emerald);
+  font-size: 0.92rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Budget Bar Styles */
+.budget-progress-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin: 10px 0;
+  position: relative;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-teal-primary), var(--color-emerald));
+  border-radius: var(--radius-full);
+  transition: width 1s ease-in-out;
+}
+
+.budget-progress-fill.warning {
+  background: linear-gradient(90deg, var(--color-amber), var(--color-coral));
+}
+
+/* Streamlit Native Widget Overrides */
+div[data-testid="stForm"] {
+  border: 1px solid var(--border-card) !important;
+  background: var(--color-bg-card) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 24px !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Primary Button Styling */
+div.stButton > button[kind="primary"],
+div.stButton > button:first-child:not([kind="secondary"]) {
+  background: linear-gradient(135deg, #00C2CB 0%, #008B94 100%) !important;
+  color: #060B18 !important;
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 10px 24px !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.02em !important;
+  transition: all var(--trans-smooth) !important;
+  box-shadow: 0 4px 14px rgba(0, 194, 203, 0.3) !important;
+}
+
+div.stButton > button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.4) !important;
+  border-color: #00F0FF !important;
+}
+
+/* Inputs, Selects, Number Pickers */
+input, select, textarea {
+  background-color: var(--color-bg-input) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-teal-glow) !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.25) !important;
+}
+
+/* Streamlit Metric Overrides */
+div[data-testid="stMetric"] {
+  background: var(--color-bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 16px 20px !important;
+}
+
+div[data-testid="stMetricLabel"] {
+  color: var(--text-muted) !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+}
+
+div[data-testid="stMetricValue"] {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  color: #FFFFFF !important;
+  font-size: 1.6rem !important;
+}
+
+/* Streamlit Tabs */
+div[data-testid="stTabs"] button[role="tab"] {
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  border-radius: var(--radius-sm) !important;
+  transition: all var(--trans-fast) !important;
+}
+
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+  color: var(--color-teal-glow) !important;
+  border-bottom: 2px solid var(--color-teal-glow) !important;
+}
+
+/* Streamlit Expanders */
+div[data-testid="stExpander"] {
+  background: var(--color-bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  margin-bottom: 12px !important;
+}
+
+/* Keyframe Animations */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.anim-entrance {
+  animation: fadeInSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.anim-float {
+  animation: floatGentle 4s ease-in-out infinite;
+}
+
+.anim-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .dest-card:hover {
+    transform: none !important;
+  }
+  .spirit-card:hover {
+    transform: none !important;
+  }
+}

@@ -1,0 +1,20 @@
+# SpiritIQ - AI Travel Planning Agent
+# Core Foundation Dependencies (Compatible with Python 3.10+)
+
+# Frontend Dashboard
+streamlit>=1.38.0
+
+# AI & LLM Orchestration
+google-genai>=0.1.0
+
+# Data Validation & Schemas
+pydantic>=2.8.0
+
+# Environment Configuration
+python-dotenv>=1.0.0
+
+# HTTP & External APIs
+requests>=2.31.0
+
+# Testing Framework
+pytest>=8.0.0
