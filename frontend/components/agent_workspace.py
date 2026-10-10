@@ -4,7 +4,7 @@ frontend/components/agent_workspace.py
 Agent Workspace presentation components:
 1. Live execution timeline with real backend status and provenance
 2. Chronological agent activity & reasoning summary log
-3. Professional Gemini quota-exhaustion banner with rate-limit documentation link
+3. Professional Groq rate-limit banner with documentation link
 """
 
 from __future__ import annotations
@@ -131,7 +131,7 @@ def render_agent_timeline(trace: Optional[AgentExecutionTrace]) -> None:
                     ⚡ Agent Orchestration Timeline
                 </div>
                 <div style="font-size: 0.75rem; color: #64748B;">
-                    Model: <strong style="color: #F1F5F9;">{trace.model_used or 'Configured Gemini'}</strong>
+                    Model: <strong style="color: #F1F5F9;">{trace.model_used or 'Configured Groq'}</strong>
                 </div>
             </div>
             {''.join(cards_html)}
@@ -176,15 +176,15 @@ def render_activity_log(activity_log: List[str]) -> None:
 
 def render_quota_exhausted_banner(quota_details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Render a clean, professional Gemini quota error alert without dumping raw JSON,
-    linking to official rate-limits documentation.
+    Render a clean, professional Groq rate-limit alert without dumping raw JSON,
+    linking to official Groq rate-limits documentation.
     """
-    model_name = quota_details.get("model", "gemini-3.8-flash") if quota_details else "gemini-3.8-flash"
+    model_name = quota_details.get("model", "llama-3.3-70b-versatile") if quota_details else "llama-3.3-70b-versatile"
     retry_sec = quota_details.get("retry_after") if quota_details else None
     retry_text = (
         f"Recommended retry interval: approximately <strong>{retry_sec} seconds</strong>."
         if retry_sec
-        else "Please verify your project quota reset timing or configure a billing-enabled API key."
+        else "Please verify your Groq Cloud project rate limit timing or check token per minute (TPM) limits."
     )
 
     render_html(
@@ -201,17 +201,17 @@ def render_quota_exhausted_banner(quota_details: Optional[Dict[str, Any]] = None
             <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px;">
                 <span style="font-size: 1.3rem;">⚠️</span>
                 <h3 style="font-size: 1.2rem; color: #FF5470; margin: 0;">
-                    Gemini API Quota Limit Reached (HTTP 429 RESOURCE_EXHAUSTED)
+                    Groq API Rate Limit Reached (HTTP 429 RATE_LIMIT_EXCEEDED)
                 </h3>
             </div>
 
             <p style="font-size: 0.88rem; color: #F1F5F9; line-height: 1.5; margin-bottom: 12px;">
-                The configured Gemini model (<code>{model_name}</code>) has exhausted its daily free-tier request quota.
+                The configured Groq model (<code>{model_name}</code>) has reached its requests-per-minute (RPM) or tokens-per-minute (TPM) threshold.
                 {retry_text}
             </p>
 
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank" style="
+                <a href="https://console.groq.com/docs/rate-limits" target="_blank" style="
                     display: inline-flex;
                     align-items: center;
                     gap: 6px;
@@ -224,7 +224,7 @@ def render_quota_exhausted_banner(quota_details: Optional[Dict[str, Any]] = None
                     font-size: 0.8rem;
                     font-weight: 600;
                 ">
-                    🔗 View Google Gemini Rate Limits Documentation ↗
+                    🔗 View Groq Rate Limits Documentation ↗
                 </a>
                 <span style="font-size: 0.78rem; color: #94A3B8;">
                     Inputs are preserved. You can adjust parameters or retry at any time.

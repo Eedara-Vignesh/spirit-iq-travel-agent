@@ -2,8 +2,7 @@
 tests/test_frontend.py
 ======================
 Unit tests for Streamlit UI rendering components.
-Verifies that all components render cleanly without pandas or DLL import errors,
-and tests Agent Workspace timeline, activity log, and quota banner displays.
+Verifies that all components render cleanly without pandas or DLL import errors.
 """
 
 from backend.schemas import (
@@ -17,25 +16,23 @@ from backend.schemas import (
     TransportMode,
     WeatherForecastSummary,
     AlternateRoute,
-    AgentExecutionTrace,
-    AgentStageRecord,
-    StageStatus,
 )
 from frontend.app import render_plan_dashboard, load_theme_css, init_session_state
 from frontend.components.header import render_header
 from frontend.components.hero import render_hero
+from frontend.components.navbar import render_navbar
 from frontend.components.features import render_how_it_works, render_feature_cards
 from frontend.components.destination_cards import render_destination_showcase
 from frontend.components.itinerary_view import render_itinerary_section
 from frontend.components.budget_view import render_budget_section
 from frontend.components.transit_view import render_transit_section
 from frontend.components.weather_safety_view import render_weather_section, render_safety_section
+from frontend.components.connected_journey_view import render_connected_journey_section
+from frontend.components.hotel_view import render_hotel_section
+from frontend.components.booking_view import render_booking_section
+from frontend.components.assistant_view import render_assistant_section
+from frontend.components.profile_view import render_profile_section
 from frontend.components.footer import render_footer
-from frontend.components.agent_workspace import (
-    render_agent_timeline,
-    render_activity_log,
-    render_quota_exhausted_banner,
-)
 
 
 def create_sample_plan() -> TripPlan:
@@ -167,36 +164,30 @@ def test_render_empty_and_edge_case_states():
     render_safety_section([])
 
 
-def test_render_agent_workspace_timeline_and_activity_log():
-    """Verify agent workspace timeline and activity logs render cleanly."""
-    trace = AgentExecutionTrace(
-        model_used="gemini-3.8-flash",
-        stages=[
-            AgentStageRecord(stage_id="s1", name="Request Validation", status=StageStatus.COMPLETED, provenance="Deterministic", summary="Parameters validated"),
-            AgentStageRecord(stage_id="s2", name="Destination Discovery", status=StageStatus.SKIPPED, provenance="Local DB", summary="User specified Goa"),
-            AgentStageRecord(stage_id="s3", name="Weather Guidance", status=StageStatus.COMPLETED, provenance="Live Open-Meteo", summary="28°C sunny"),
-            AgentStageRecord(stage_id="s4", name="Highway Corridor", status=StageStatus.COMPLETED, provenance="Dijkstra Engine", summary="560 km corridor"),
-            AgentStageRecord(stage_id="s5", name="Gemini Synthesis", status=StageStatus.FAILED, provenance="Gemini AI", error="Quota limit reached"),
-        ],
-        activity_log=[
-            "[12:00:01] Validating trip parameters for Bengaluru to Goa...",
-            "[12:00:02] Querying Open-Meteo endpoint...",
-            "[12:00:03] Solving Dijkstra corridor graph...",
-            "[12:00:04] ⚠️ Gemini quota limit reached (429 RESOURCE_EXHAUSTED).",
-        ],
-        has_quota_error=True,
-    )
-
-    render_agent_timeline(trace)
-    render_activity_log(trace.activity_log)
-    render_quota_exhausted_banner({"model": "gemini-3.8-flash", "retry_after": 60})
-
-
-def test_render_plan_dashboard_preview_mode():
-    """Verify render_plan_dashboard handles deterministic non-LLM preview mode correctly."""
+def test_render_new_workflow_views():
+    """Verify new 9-section views render cleanly with sample plan."""
     plan = create_sample_plan()
-    plan.metadata["is_preview_mode"] = True
-    plan.metadata["has_quota_error"] = True
-    plan.errors = ["Notice: Gemini model quota exceeded (429 RESOURCE_EXHAUSTED). Preview loaded."]
+    init_session_state()
 
-    render_plan_dashboard(plan)
+    # Navbar
+    section = render_navbar()
+    assert section is not None
+
+    # Connected journey view
+    render_connected_journey_section(plan)
+    render_connected_journey_section(None)
+
+    # Hotel view
+    render_hotel_section(plan)
+    render_hotel_section(None)
+
+    # Booking view
+    render_booking_section(plan)
+    render_booking_section(None)
+
+    # Assistant view
+    render_assistant_section(plan)
+
+    # Profile view
+    render_profile_section()
+

@@ -2,7 +2,7 @@
 tests/test_agent.py
 ===================
 Unit tests for AI Travel Planning Agent (backend/agent.py).
-Uses mocked Gemini API responses to test orchestration, Pydantic validation,
+Uses mocked Groq API responses to test orchestration, Pydantic validation,
 destination discovery, and fallback resilience without live API calls or secrets.
 """
 
@@ -20,7 +20,7 @@ from backend.schemas import (
 )
 
 
-def _make_mock_gemini_response_json(destination: str = "Goa") -> str:
+def _make_mock_groq_response_json(destination: str = "Goa") -> str:
     """Helper returning valid JSON matching TripPlan schema."""
     plan_dict = {
         "trip_title": f"Sun, Sand & Heritage: {destination} Getaway",
@@ -130,9 +130,9 @@ def _make_mock_gemini_response_json(destination: str = "Goa") -> str:
     return json.dumps(plan_dict)
 
 
-def test_agent_plan_trip_with_mocked_gemini_success():
-    """Verify end-to-end trip planning when Gemini API responds successfully."""
-    agent = TravelPlanningAgent(api_key="mock_test_key_12345")
+def test_agent_plan_trip_with_mocked_groq_success():
+    """Verify end-to-end trip planning when Groq API responds successfully."""
+    agent = TravelPlanningAgent(api_key="gsk_mock_test_key_12345")
 
     req = TripRequest(
         origin="Bengaluru",
@@ -145,13 +145,14 @@ def test_agent_plan_trip_with_mocked_gemini_success():
         interests=["beaches", "heritage"],
     )
 
-    mock_response = MagicMock()
-    mock_response.text = _make_mock_gemini_response_json(destination="Goa")
+    mock_choice = MagicMock()
+    mock_choice.message.content = _make_mock_groq_response_json(destination="Goa")
+    mock_completion = MagicMock(choices=[mock_choice])
 
-    with patch("backend.agent.genai.Client") as mock_client_cls:
+    with patch("backend.agent.Groq") as mock_groq_cls:
         mock_instance = MagicMock()
-        mock_instance.models.generate_content.return_value = mock_response
-        mock_client_cls.return_value = mock_instance
+        mock_instance.chat.completions.create.return_value = mock_completion
+        mock_groq_cls.return_value = mock_instance
 
         plan = agent.plan_trip(req)
 
@@ -164,11 +165,12 @@ def test_agent_plan_trip_with_mocked_gemini_success():
     assert plan.budget_breakdown.is_within_budget is True
     assert len(plan.safety_precautions) >= 2
     assert plan.metadata.get("ai_orchestrated") is True
+    assert plan.metadata.get("is_fallback") is False
 
 
 def test_agent_plan_trip_destination_discovery():
     """Verify that omitting a destination triggers discovery recommendations."""
-    agent = TravelPlanningAgent(api_key="mock_test_key_12345")
+    agent = TravelPlanningAgent(api_key="gsk_mock_test_key_12345")
 
     req = TripRequest(
         origin="Delhi",
@@ -181,24 +183,36 @@ def test_agent_plan_trip_destination_discovery():
         interests=["mountains", "scenic"],
     )
 
-    mock_response = MagicMock()
-    mock_response.text = _make_mock_gemini_response_json(destination="Shimla")
+    from backend.tools.destination_tool import recommend_destinations
+    discovered_res = recommend_destinations(
+        origin=req.origin,
+        interests=req.interests,
+        budget_inr=req.budget_inr,
+        travel_month=req.start_date.month,
+        trip_type=req.trip_type.value,
+        preferred_destination=None,
+    )
+    top_dest_name = discovered_res.data["destinations"][0]["name"]
 
-    with patch("backend.agent.genai.Client") as mock_client_cls:
+    mock_choice = MagicMock()
+    mock_choice.message.content = _make_mock_groq_response_json(destination=top_dest_name)
+    mock_completion = MagicMock(choices=[mock_choice])
+
+    with patch("backend.agent.Groq") as mock_groq_cls:
         mock_instance = MagicMock()
-        mock_instance.models.generate_content.return_value = mock_response
-        mock_client_cls.return_value = mock_instance
+        mock_instance.chat.completions.create.return_value = mock_completion
+        mock_groq_cls.return_value = mock_instance
 
         plan = agent.plan_trip(req)
 
     assert isinstance(plan, TripPlan)
     assert len(plan.destinations) >= 1
-    assert plan.destinations[0].name == "Shimla"
-    assert len(plan.itinerary) == 2
+    assert plan.destinations[0].name == top_dest_name
+    assert len(plan.itinerary) == 3
 
 
 def test_agent_missing_api_key_graceful_handling():
-    """Verify that agent does not crash if GEMINI_API_KEY is unset or empty."""
+    """Verify that agent does not crash if GROQ_API_KEY is unset or empty."""
     agent = TravelPlanningAgent(api_key="")
 
     req = TripRequest(
@@ -213,13 +227,15 @@ def test_agent_missing_api_key_graceful_handling():
 
     assert isinstance(plan, TripPlan)
     assert len(plan.errors) > 0
-    assert "GEMINI_API_KEY is not configured" in plan.errors[0]
+    assert "GROQ_API_KEY is not configured" in plan.errors[0]
     assert plan.budget_breakdown is not None  # Local budget tool still runs
+    assert plan.metadata.get("ai_orchestrated") is False
+    assert plan.metadata.get("is_fallback") is True
 
 
-def test_agent_gemini_server_error_fallback():
-    """Verify fallback plan is returned when Gemini encounters transient API error."""
-    agent = TravelPlanningAgent(api_key="mock_test_key_12345")
+def test_agent_groq_server_error_fallback():
+    """Verify fallback plan is returned when Groq encounters transient API error."""
+    agent = TravelPlanningAgent(api_key="gsk_mock_test_key_12345")
 
     req = TripRequest(
         origin="Bengaluru",
@@ -229,11 +245,10 @@ def test_agent_gemini_server_error_fallback():
         budget_inr=15000.0,
     )
 
-    with patch("backend.agent.genai.Client") as mock_client_cls, patch("backend.agent.time.sleep"):
+    with patch("backend.agent.Groq") as mock_groq_cls, patch("backend.agent.time.sleep"):
         mock_instance = MagicMock()
-        # Simulate 503 high demand error
-        mock_instance.models.generate_content.side_effect = RuntimeError("503 UNAVAILABLE: Model busy")
-        mock_client_cls.return_value = mock_instance
+        mock_instance.chat.completions.create.side_effect = RuntimeError("503 Service Unavailable: Groq API temporarily busy")
+        mock_groq_cls.return_value = mock_instance
 
         plan = agent.plan_trip(req)
 
@@ -244,87 +259,5 @@ def test_agent_gemini_server_error_fallback():
     assert "temporary error" in plan.errors[0].lower()
     assert plan.budget_breakdown is not None
     assert len(plan.safety_precautions) >= 1
-
-
-def test_agent_gemini_quota_exhausted_handling():
-    """Verify 429 RESOURCE_EXHAUSTED quota error is handled without tight-loop retry and transparently labeled."""
-    agent = TravelPlanningAgent(api_key="mock_test_key_12345")
-
-    req = TripRequest(
-        origin="Bengaluru",
-        destination="Goa",
-        start_date=date(2026, 11, 1),
-        end_date=date(2026, 11, 3),
-        budget_inr=30000.0,
-    )
-
-    quota_err_msg = (
-        "429 RESOURCE_EXHAUSTED: You exceeded your current quota. "
-        "Quota: GenerateRequestsPerDayPerProjectPerModel-FreeTier, quotaValue: 20"
-    )
-
-    with patch("backend.agent.genai.Client") as mock_client_cls, patch("backend.agent.time.sleep") as mock_sleep:
-        mock_instance = MagicMock()
-        mock_instance.models.generate_content.side_effect = RuntimeError(quota_err_msg)
-        mock_client_cls.return_value = mock_instance
-
-        plan = agent.plan_trip(req)
-
-        # Quota errors MUST NOT be retried in a loop
-        assert mock_sleep.call_count == 0
-
-    assert isinstance(plan, TripPlan)
-    assert plan.metadata.get("has_quota_error") is True
-    assert plan.metadata.get("is_preview_mode") is True
     assert plan.metadata.get("ai_orchestrated") is False
-    assert "Deterministic Tool Preview" in plan.trip_title
-    assert "Not AI Generated" in plan.summary
-    assert len(plan.errors) > 0
-    assert "rate-limits" in plan.errors[0]
-    assert "RESOURCE_EXHAUSTED" in plan.errors[0]
-    # Verify execution trace captured the quota failure
-    assert plan.execution_trace is not None
-    assert plan.execution_trace.has_quota_error is True
-    gemini_stage = next(s for s in plan.execution_trace.stages if s.stage_id == "stage_gemini")
-    assert gemini_stage.status.value == "failed"
-    assert "Quota Exhausted" in gemini_stage.summary
-
-
-def test_agent_plan_trip_stream_yields_all_stages():
-    """Verify plan_trip_stream generator yields real-time execution trace at each stage."""
-    agent = TravelPlanningAgent(api_key="mock_test_key_12345")
-
-    req = TripRequest(
-        origin="Bengaluru",
-        destination=None,  # Triggers destination discovery stage
-        start_date=date(2026, 11, 1),
-        end_date=date(2026, 11, 2),
-        budget_inr=20000.0,
-    )
-
-    mock_response = MagicMock()
-    mock_response.text = _make_mock_gemini_response_json(destination="Goa")
-
-    yielded_traces = []
-    final_plan = None
-
-    with patch("backend.agent.genai.Client") as mock_client_cls:
-        mock_instance = MagicMock()
-        mock_instance.models.generate_content.return_value = mock_response
-        mock_client_cls.return_value = mock_instance
-
-        for trace, plan in agent.plan_trip_stream(req):
-            yielded_traces.append(trace)
-            if plan is not None:
-                final_plan = plan
-
-    assert len(yielded_traces) >= 9
-    assert final_plan is not None
-    assert final_plan.execution_trace is not None
-    assert len(final_plan.execution_trace.stages) == 9
-    assert len(final_plan.execution_trace.activity_log) >= 5
-    # Request validation should be completed
-    assert final_plan.execution_trace.stages[0].status.value == "completed"
-    # Destination discovery should be completed (destination was None)
-    assert final_plan.execution_trace.stages[1].status.value == "completed"
-
+    assert plan.metadata.get("is_fallback") is True

@@ -30,7 +30,7 @@ def render_hero() -> None:
         body {
           background: transparent;
           font-family: 'Plus Jakarta Sans', sans-serif;
-          color: #F1F5F9;
+          color: #0F172A;
           overflow: hidden;
         }
         .hero-container {
@@ -38,46 +38,25 @@ def render_hero() -> None:
           min-height: 380px;
           border-radius: 24px;
           padding: 40px 32px;
-          background: linear-gradient(135deg, rgba(11, 19, 43, 0.95) 0%, rgba(17, 30, 56, 0.85) 100%);
-          border: 1px solid rgba(0, 240, 255, 0.2);
-          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), inset 0 0 60px rgba(0, 240, 255, 0.05);
+          background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #F1F5F9 100%);
+          border: 1px solid #E2E8F0;
+          box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
           overflow: hidden;
           display: flex;
           flex-direction: column;
           justify-content: center;
         }
 
-        /* Ambient floating light orbs */
+        /* Ambient subtle tint orbs (reduced blur to eliminate text fuzziness) */
         .ambient-orb {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(50px);
-          pointer-events: none;
-          z-index: 1;
-          opacity: 0.5;
-          animation: floatOrb 8s ease-in-out infinite alternate;
-        }
-        .orb-1 {
-          width: 260px;
-          height: 260px;
-          top: -40px;
-          right: -20px;
-          background: radial-gradient(circle, rgba(0, 240, 255, 0.25) 0%, transparent 70%);
-        }
-        .orb-2 {
-          width: 220px;
-          height: 220px;
-          bottom: -30px;
-          left: 10%;
-          background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
-          animation-delay: -4s;
+          display: none;
         }
 
         /* Floating travel icons (JS / CSS animated) */
         .floating-icon {
           position: absolute;
           font-size: 1.5rem;
-          color: rgba(0, 240, 255, 0.4);
+          color: rgba(2, 132, 199, 0.3);
           pointer-events: none;
           z-index: 2;
           user-select: none;
@@ -99,9 +78,9 @@ def render_hero() -> None:
           gap: 8px;
           padding: 6px 16px;
           border-radius: 999px;
-          background: rgba(0, 240, 255, 0.12);
-          border: 1px solid rgba(0, 240, 255, 0.35);
-          color: #00F0FF;
+          background: rgba(2, 132, 199, 0.08);
+          border: 1px solid rgba(2, 132, 199, 0.25);
+          color: #0284C7;
           font-size: 0.8rem;
           font-weight: 700;
           letter-spacing: 0.06em;
@@ -116,13 +95,13 @@ def render_hero() -> None:
           font-weight: 800;
           line-height: 1.15;
           letter-spacing: -0.03em;
-          color: #FFFFFF;
+          color: #0F172A;
           margin-bottom: 16px;
           animation: slideDown 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .hero-headline .highlight {
-          background: linear-gradient(135deg, #00F0FF 0%, #06D6A0 100%);
+          background: linear-gradient(135deg, #0284C7 0%, #4F46E5 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -130,7 +109,7 @@ def render_hero() -> None:
         .hero-subhead {
           font-size: 1.05rem;
           line-height: 1.6;
-          color: #94A3B8;
+          color: #475569;
           margin-bottom: 28px;
           max-width: 650px;
           animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -152,24 +131,26 @@ def render_hero() -> None:
         }
 
         .metric-card {
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
           border-radius: 14px;
           padding: 12px 14px;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
           transition: all 0.25s ease;
         }
 
         .metric-card:hover {
-          border-color: rgba(0, 240, 255, 0.4);
-          background: rgba(0, 240, 255, 0.06);
+          border-color: #0284C7;
+          background: #F8FAFC;
           transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12);
         }
 
         .metric-val {
           font-family: 'Outfit', sans-serif;
           font-size: 1.4rem;
           font-weight: 800;
-          color: #00F0FF;
+          color: #0284C7;
           display: flex;
           align-items: baseline;
           gap: 2px;
@@ -177,10 +158,11 @@ def render_hero() -> None:
 
         .metric-label {
           font-size: 0.75rem;
-          color: #94A3B8;
+          color: #64748B;
           margin-top: 2px;
           font-weight: 500;
         }
+
 
         @keyframes floatOrb {
           0% { transform: translateY(0) scale(1); }

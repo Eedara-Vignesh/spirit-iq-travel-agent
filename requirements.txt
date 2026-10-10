@@ -5,7 +5,7 @@
 streamlit>=1.38.0
 
 # AI & LLM Orchestration
-google-genai>=0.1.0
+groq>=0.18.0
 
 # Data Validation & Schemas
 pydantic>=2.8.0

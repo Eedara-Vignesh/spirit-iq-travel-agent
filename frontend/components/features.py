@@ -67,9 +67,9 @@ def render_feature_cards() -> None:
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px;">
                 <div class="spirit-card">
                     <div class="spirit-icon-box">🧠</div>
-                    <h3 style="font-size: 1.15rem; margin-bottom: 8px;">Gemini 3.8 Orchestration</h3>
+                    <h3 style="font-size: 1.15rem; margin-bottom: 8px;">Groq AI Orchestration</h3>
                     <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.5;">
-                        Multi-step LLM synthesis generates morning-to-night schedules tailored to your chosen pace and party dynamics.
+                        High-speed LLM synthesis generates morning-to-night schedules tailored to your chosen pace and party dynamics.
                     </p>
                 </div>
 

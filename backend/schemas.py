@@ -2,7 +2,7 @@
 backend/schemas.py
 ==================
 Pydantic data models for SpiritIQ AI Travel Planning Agent.
-Defines strict data contracts between Frontend, Backend Services, and Gemini AI Agent.
+Defines strict data contracts between Frontend, Backend Services, and Groq AI Agent.
 """
 
 from __future__ import annotations
@@ -44,23 +44,29 @@ class TransportMode(str, Enum):
     ANY = "any"
 
 
-class StageStatus(str, Enum):
-    """Execution status for an individual agent pipeline stage."""
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    SKIPPED = "skipped"
+class HotelCategory(str, Enum):
+    """Hotel categories supported by accommodation discovery."""
+    BUDGET = "budget"
+    BOUTIQUE = "boutique"
+    LUXURY = "luxury"
+    RESORT = "resort"
+    HOMESTAY = "homestay"
+    ANY = "any"
+
+
+class BookingStatus(str, Enum):
+    """Explicit state management for transport and hotel reservations."""
+    DRAFT = "draft"
+    SEARCHING = "searching"
+    OPTIONS_AVAILABLE = "options_available"
+    SELECTION_MADE = "selection_made"
+    AWAITING_USER_REVIEW = "awaiting_user_review"
+    AWAITING_USER_APPROVAL = "awaiting_user_approval"
+    REDIRECTED_TO_PROVIDER = "redirected_to_provider"
+    PENDING_PROVIDER_CONFIRMATION = "pending_provider_confirmation"
+    CONFIRMED = "confirmed"
     FAILED = "failed"
-
-
-class ToolProvenance(str, Enum):
-    """Provenance/source label for retrieved or calculated travel data."""
-    LIVE_API = "Live External API"
-    GRAPH_SOLVER = "Dijkstra Graph Algorithm"
-    DETERMINISTIC = "Deterministic Rule-Based"
-    LOCAL_DATA = "Curated Reference Database"
-    LLM_SYNTHESIS = "Gemini LLM Orchestrator"
-    FALLBACK = "Safe Fallback / Heuristic"
+    CANCELLED = "cancelled"
 
 
 # ============================================================================
@@ -135,6 +141,31 @@ class TripRequest(BaseModel):
         default=0,
         ge=0,
         description="Flexibility range in days (e.g., +/- 2 days)",
+    )
+    hotel_required: bool = Field(
+        default=True,
+        description="Whether hotel accommodation is requested",
+    )
+    hotel_category: Optional[HotelCategory] = Field(
+        default=None,
+        description="Preferred hotel category (budget, boutique, luxury, resort, homestay)",
+    )
+    num_rooms: int = Field(
+        default=1,
+        ge=1,
+        description="Number of hotel rooms needed",
+    )
+    hotel_amenities: List[str] = Field(
+        default_factory=list,
+        description="Desired amenities e.g. ['Wi-Fi', 'Swimming Pool', 'Breakfast Included']",
+    )
+    origin_coordinates: Optional[Dict[str, float]] = Field(
+        default=None,
+        description="Optional GPS coordinates for journey origin {'lat': float, 'lon': float}",
+    )
+    destination_coordinates: Optional[Dict[str, float]] = Field(
+        default=None,
+        description="Optional GPS coordinates for destination {'lat': float, 'lon': float}",
     )
 
     @field_validator("origin", "destination")
@@ -297,6 +328,8 @@ class AlternateRoute(BaseModel):
     estimated_duration_hours: Optional[float] = Field(default=None, ge=0, description="Duration in hours")
     highlights: List[str] = Field(default_factory=list, description="Scenic or historical stops")
     algorithm_notes: Optional[str] = Field(default=None, description="e.g. 'Shortest path via Dijkstra graph'")
+    polyline: Optional[str] = Field(default=None, description="Encoded routing polyline for map representation")
+    source: Optional[str] = Field(default=None, description="Route origin engine: 'google_routes' or 'dijkstra_graph'")
 
 
 class BookingLink(BaseModel):
@@ -307,26 +340,92 @@ class BookingLink(BaseModel):
     description: Optional[str] = Field(default=None, description="Context or promo details")
 
 
-class AgentStageRecord(BaseModel):
-    """Execution status and audit record for an individual agent workflow stage."""
-    stage_id: str = Field(..., description="Unique machine identifier for the stage")
-    name: str = Field(..., description="Human-readable stage title")
-    status: StageStatus = Field(default=StageStatus.PENDING, description="Execution status")
-    tool_name: Optional[str] = Field(default=None, description="Internal tool or API invoked")
-    provenance: Optional[str] = Field(default=None, description="Data origin (Live API, Dijkstra, Local DB)")
-    summary: Optional[str] = Field(default=None, description="Concise summary of findings or results")
-    error: Optional[str] = Field(default=None, description="Non-fatal warning or error details")
-    duration_ms: Optional[float] = Field(default=None, description="Stage execution time in milliseconds")
+class HotelOption(BaseModel):
+    """Hotel or accommodation option."""
+    id: str = Field(..., description="Unique identifier for the property")
+    name: str = Field(..., description="Hotel property name")
+    location: str = Field(..., description="City or specific neighborhood")
+    destination: str = Field(..., description="Parent destination")
+    category: HotelCategory = Field(default=HotelCategory.BOUTIQUE, description="Property category")
+    rating: float = Field(default=4.5, ge=0.0, le=5.0, description="Star rating or review score (0-5)")
+    price_per_night_inr: float = Field(..., ge=0, description="Rate per night in INR")
+    total_stay_cost_inr: float = Field(..., ge=0, description="Total stay cost for all nights")
+    room_type: str = Field(default="Standard Deluxe Room", description="Room classification")
+    guest_capacity: int = Field(default=2, ge=1, description="Max guest occupancy")
+    amenities: List[str] = Field(default_factory=list, description="Key amenities")
+    cancellation_policy: str = Field(default="Free cancellation up to 48 hours prior to check-in", description="Cancellation terms")
+    image_url: Optional[str] = Field(default=None, description="Property photo URL")
+    booking_url: str = Field(..., description="Official provider reservation link")
+    provider: str = Field(default="Booking.com Partner", description="Booking service name")
+    is_verified_partner: bool = Field(default=True, description="Whether partner listing is verified")
+    is_selected: bool = Field(default=False, description="User selection flag")
 
 
-class AgentExecutionTrace(BaseModel):
-    """Real-time trace capturing end-to-end multi-tool agent orchestration."""
-    stages: List[AgentStageRecord] = Field(default_factory=list, description="Ordered pipeline stage records")
-    activity_log: List[str] = Field(default_factory=list, description="Live chronological activity log")
-    has_quota_error: bool = Field(default=False, description="Whether Gemini model quota was exhausted")
-    is_preview_mode: bool = Field(default=False, description="True if operating in deterministic non-LLM preview")
-    model_used: Optional[str] = Field(default=None, description="Configured Gemini model identifier")
-    quota_error_details: Optional[Dict[str, Any]] = Field(default=None, description="Sanitized quota metadata")
+class JourneySegment(BaseModel):
+    """Single leg of a connected multimodal journey (e.g. Origin -> Hub, Hub -> Hub, Hub -> Hotel)."""
+    segment_id: str = Field(..., description="Unique segment identifier")
+    leg_number: int = Field(..., ge=1, description="Sequential leg index (1, 2, 3...)")
+    leg_title: str = Field(..., description="Description e.g. 'Road Transfer: Narasaraopeta to Vijayawada Hub'")
+    origin: str = Field(..., description="Departure point / station / airport")
+    destination: str = Field(..., description="Arrival point / hub")
+    mode: TransportMode = Field(..., description="Transport mode")
+    provider: str = Field(..., description="Carrier, airline, railway line, or cab service")
+    departure_time: Optional[str] = Field(default=None, description="Scheduled departure time e.g. '08:30'")
+    arrival_time: Optional[str] = Field(default=None, description="Scheduled arrival time e.g. '12:00'")
+    duration_hours: float = Field(..., ge=0, description="Travel duration in hours")
+    estimated_cost_inr: float = Field(..., ge=0, description="Estimated segment fare in INR")
+    distance_km: Optional[float] = Field(default=None, ge=0, description="Segment distance in km")
+    booking_url: Optional[str] = Field(default=None, description="Verified official booking or search handoff URL")
+    availability_status: str = Field(default="Planning Estimate", description="Availability descriptor")
+    transfer_duration_hours: Optional[float] = Field(default=None, ge=0, description="Transfer buffer time before next segment")
+    connection_warning: Optional[str] = Field(default=None, description="Critical layover or transfer cautionary note")
+    is_selected: bool = Field(default=False, description="User selection flag")
+
+
+class ConnectedJourney(BaseModel):
+    """Complete connected journey combining multiple transit legs from door to destination."""
+    journey_id: str = Field(..., description="Unique journey itinerary identifier")
+    route_type: str = Field(..., description="Route archetype e.g. 'Flight via Vijayawada Hub', 'Direct Train'")
+    origin: str = Field(..., description="User starting location")
+    origin_hub: Optional[str] = Field(default=None, description="Nearest departure airport or rail hub")
+    destination_hub: Optional[str] = Field(default=None, description="Arrival airport or rail junction")
+    final_destination: str = Field(..., description="End destination")
+    segments: List[JourneySegment] = Field(default_factory=list, description="Ordered transit segments")
+    total_duration_hours: float = Field(..., ge=0, description="Cumulative door-to-door duration in hours")
+    total_transit_cost_inr: float = Field(..., ge=0, description="Sum of transit fares in INR")
+    convenience_rating: str = Field(default="Balanced", description="'Fastest', 'Best Value', 'Scenic & Relaxed'")
+    is_recommended: bool = Field(default=False, description="Flagged by planner as optimal path")
+    is_selected: bool = Field(default=False, description="User selection flag")
+
+
+class TravellerProfile(BaseModel):
+    """Traveller contact details used for authorized booking prefill."""
+    primary_contact_name: str = Field(default="Guest Traveller", description="Full name of primary traveller")
+    email: str = Field(default="traveller@spirit-iq.internal", description="Contact email address")
+    phone: str = Field(default="+91 9876543210", description="Contact telephone number")
+    num_adults: int = Field(default=1, ge=1, description="Adult travellers count")
+    num_children: int = Field(default=0, ge=0, description="Children count")
+    special_notes: Optional[str] = Field(default=None, description="Dietary or accessibility notes")
+
+
+class BookingOrder(BaseModel):
+    """Booking transaction record with explicit payment approval gate."""
+    order_id: str = Field(..., description="Unique booking order identifier e.g. 'ORD-7891'")
+    trip_title: str = Field(..., description="Trip title associated with this order")
+    status: BookingStatus = Field(default=BookingStatus.DRAFT, description="Current booking workflow state")
+    traveller_profile: Optional[TravellerProfile] = Field(default=None, description="Customer contact info")
+    selected_segments: List[JourneySegment] = Field(default_factory=list, description="Chosen transport legs")
+    selected_hotel: Optional[HotelOption] = Field(default=None, description="Chosen accommodation")
+    itemised_transport_inr: float = Field(default=0.0, ge=0, description="Transport total")
+    itemised_hotel_inr: float = Field(default=0.0, ge=0, description="Hotel stay total")
+    estimated_activities_inr: float = Field(default=0.0, ge=0, description="Estimated sightseeing & activities")
+    estimated_food_inr: float = Field(default=0.0, ge=0, description="Estimated meals & dining")
+    taxes_and_fees_inr: float = Field(default=0.0, ge=0, description="Estimated GST and platform charges")
+    total_payable_inr: float = Field(default=0.0, ge=0, description="Grand total payable")
+    user_explicitly_approved: bool = Field(default=False, description="Explicit approval gate confirmation")
+    approval_timestamp: Optional[datetime.datetime] = Field(default=None, description="Timestamp of user authorization")
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now, description="Order timestamp")
+    provider_handoff_notes: List[str] = Field(default_factory=list, description="Per-provider payment requirements")
 
 
 class TripPlan(BaseModel):
@@ -358,6 +457,14 @@ class TripPlan(BaseModel):
         default_factory=list,
         description="Available transit options",
     )
+    connected_journeys: List[ConnectedJourney] = Field(
+        default_factory=list,
+        description="Connected multi-segment journey routes with hub transfers",
+    )
+    hotel_recommendations: List[HotelOption] = Field(
+        default_factory=list,
+        description="Curated hotel options matching preferences",
+    )
     budget_breakdown: Optional[BudgetBreakdown] = Field(
         default=None,
         description="Detailed expenditure breakdown in INR",
@@ -374,6 +481,10 @@ class TripPlan(BaseModel):
         default_factory=list,
         description="Direct booking and reservation links",
     )
+    active_booking_order: Optional[BookingOrder] = Field(
+        default=None,
+        description="Active booking and payment approval state",
+    )
     errors: List[str] = Field(
         default_factory=list,
         description="Non-fatal warnings or tool failure notices",
@@ -381,8 +492,4 @@ class TripPlan(BaseModel):
     metadata: Dict[str, Any] = Field(
         default_factory=dict,
         description="Agent execution metadata, run ID, and timestamps",
-    )
-    execution_trace: Optional[AgentExecutionTrace] = Field(
-        default=None,
-        description="Detailed trace of real backend tool execution and provenance",
     )

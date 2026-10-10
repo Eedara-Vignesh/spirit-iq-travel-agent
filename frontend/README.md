@@ -1,6 +1,6 @@
 # SpiritIQ Frontend Documentation
 
-The `frontend/` directory houses the interactive Streamlit user interface for SpiritIQ, designed as an **Agent-First AI Travel Planning Workspace** with live pipeline execution tracing, activity reasoning logs, and resilient Gemini quota handling.
+The `frontend/` directory houses the interactive Streamlit user interface for SpiritIQ, enhanced with a premium travel-tech aesthetic, fluid CSS micro-animations, and JavaScript micro-interactions.
 Assigned to: **Member 4 (Frontend, Itinerary and Group Planning)**
 
 ---
@@ -9,13 +9,15 @@ Assigned to: **Member 4 (Frontend, Itinerary and Group Planning)**
 
 ```text
 frontend/
-├── app.py                      # Main application orchestrator & Agent-First Workspace
+├── app.py                      # Main application orchestrator & dashboard view
 ├── components/                 # Modular, reusable presentation components
-│   ├── __init__.py             # render_html utility for safe DOM injection
+│   ├── __init__.py
 │   ├── header.py               # Top brand navbar & engine status pills
-│   ├── agent_workspace.py      # Real execution timeline, activity log & quota banner
-│   ├── trip_form.py            # Travel Request Panel (6 organized sections & presets)
-│   ├── itinerary_view.py       # Destination rationale & day-by-day activity timeline
+│   ├── hero.py                 # Cinematic hero with JS floating elements & metric counters
+│   ├── destination_cards.py    # Curated destination cards with fallback images & quick-select
+│   ├── features.py             # 4-step pipeline explanation & core feature cards
+│   ├── trip_form.py            # 6-section organized travel preferences form with validation
+│   ├── itinerary_view.py       # Day-by-day interactive timeline & activity cards
 │   ├── budget_view.py          # Expenditure audit, category progress bars & per-person metrics
 │   ├── transit_view.py         # Modal benchmark matrix & Dijkstra highway corridor routes
 │   ├── weather_safety_view.py  # Weather conditions, packing checklist & local safety advisories
@@ -28,30 +30,21 @@ frontend/
 
 ---
 
-## 2. Agent-First Product Experience
+## 2. Design System & Tokens
 
-- **Travel Request Panel**: Comprehensive input form with presets for popular Indian journeys (Goa, Coorg, Udaipur), flexible date tolerances (±2 days), traveller dynamics, pace, and accessibility preferences.
-- **Agent Execution Timeline**: Real-time status indicators for each pipeline stage:
-  1. Request Validation (Deterministic)
-  2. Destination Discovery (Curated seasonal scoring)
-  3. Weather Analysis (Live Open-Meteo API)
-  4. Highway Corridor Routing (Weighted Dijkstra Graph)
-  5. Transit Modal Comparison (Multimodal matrix)
-  6. Budget Optimization (4-Tier deterministic model with buffer)
-  7. Contextual Safety Advisories (Localized matrix)
-  8. Gemini AI Synthesis (Gemini 3.8 Flash)
-  9. Pydantic Schema Audit (Output contract validation)
-- **Live Activity Log**: Transparent chronological stream of actual tool executions and evidence collected.
-- **Quota Resilience**: When Gemini free-tier daily requests are exhausted (HTTP 429), the workspace displays a professional warning card linking to official documentation, preserves user inputs, and presents a transparent **Deterministic Tool Preview (Non-LLM)**.
+- **Color Palette**: Midnight Navy (`#060B18`, `#0B132B`, `#111E38`), Electric Teal (`#00F0FF`, `#00C2CB`), Emerald Aqua (`#06D6A0`), Amber Gold (`#FFB703`), and Coral (`#FF5470`).
+- **Typography**: Google Fonts `Outfit` (headings, display numbers) & `Plus Jakarta Sans` (body, forms).
+- **Surfaces**: Frosted glassmorphism (`backdrop-filter: blur(14px)`), subtle translucent borders (`rgba(255,255,255,0.08)`), and soft radial glows.
+- **Interactions**: Animated number tickers, floating travel iconography, smooth hover scale transitions, and native `prefers-reduced-motion` compliance.
 
 ---
 
 ## 3. Architecture Rules
 
 1. **No API Secrets in Frontend:** The frontend never reads or handles raw API keys. All service keys reside in `backend/config.py` and remain on the server.
-2. **Interface via Pydantic Schemas:** User input collected in UI forms is validated directly into `TripRequest` instances before invocation of `TravelPlanningAgent.plan_trip` or `plan_trip_stream`.
+2. **Interface via Pydantic Schemas:** User input collected in UI forms is validated directly into `TripRequest` instances before invocation of `TravelPlanningAgent.plan_trip`.
 3. **No Heavy Business Logic:** Routing algorithms (Dijkstra), meteorological parsing (Open-Meteo), and LLM orchestration belong strictly in `backend/`.
-4. **Transparent Provenance:** All displayed data explicitly cites its source (e.g. Open-Meteo live endpoint, Dijkstra corridor solver, deterministic budget engine, or Gemini AI).
+4. **Resilient Imagery:** All destination imagery uses reliable URLs paired with automatic SVG/CSS gradient fallbacks via `onerror` handlers to guarantee zero broken images.
 
 ---
 

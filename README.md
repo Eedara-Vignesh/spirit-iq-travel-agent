@@ -1,6 +1,6 @@
 # SpiritIQ — AI Travel Planning Agent
 
-**SpiritIQ** is an autonomous AI travel planning agent engineered for rapid, intelligent travel orchestration. It discovers destinations, evaluates real-time Open-Meteo weather, calculates optimal routing via shortest-path graph algorithms (Dijkstra), compares multi-modal transit options, balances budgets in Indian Rupees (INR), and synthesizes day-by-day itineraries with safety precautions using Google Gemini AI.
+**SpiritIQ** is an autonomous AI travel planning agent engineered for rapid, intelligent travel orchestration. It discovers destinations, evaluates real-time Open-Meteo weather, calculates optimal routing via shortest-path graph algorithms (Dijkstra), compares multi-modal transit options, balances budgets in Indian Rupees (INR), and synthesizes day-by-day itineraries with safety precautions using Groq AI.
 
 ---
 
@@ -17,7 +17,7 @@ spirit-iq-travel-agent/
 │   └── README.md                 # Frontend guide
 ├── backend/                      # Pure Python Business Logic & AI
 │   ├── __init__.py               # Package exports
-│   ├── agent.py                  # Multi-step Gemini AI Agent Orchestrator (Member 1)
+│   ├── agent.py                  # Multi-step Groq AI Agent Orchestrator (Member 1)
 │   ├── schemas.py                # Pydantic v2 data models (contracts)
 │   ├── config.py                 # Safe environment loader & key masking
 │   ├── tools/                    # Specialized planning tools
@@ -36,10 +36,11 @@ spirit-iq-travel-agent/
 │   │   └── maps_service.py       # Google Routes & Maps client (Member 3)
 │   └── README.md                 # Backend architectural documentation
 ├── tests/                        # Automated Test Suite (pytest)
-│   ├── test_agent.py             # Agent workflow tests (Mocked Gemini)
+│   ├── test_agent.py             # Agent workflow tests (Mocked Groq)
 │   ├── test_budget.py            # Budget allocation & deficit tests
 │   ├── test_config.py            # Environment & secret masking tests
 │   ├── test_destination.py       # Seasonal destination discovery tests
+│   ├── test_destination_planning.py # Destination-specific planning tests
 │   ├── test_dijkstra.py          # Dijkstra graph algorithm tests
 │   ├── test_routes.py            # Route corridor & transit tests
 │   ├── test_schemas.py           # Schema validation & serialization tests
@@ -56,7 +57,7 @@ spirit-iq-travel-agent/
 
 | Role | Member | Core Responsibilities | Key Files |
 | :--- | :--- | :--- | :--- |
-| **Member 1** | **Team Lead** | AI Multi-step Orchestration, Gemini API Integration, Schemas, Config, GitHub & Integration | `backend/agent.py`, `backend/schemas.py`, `backend/config.py` |
+| **Member 1** | **Team Lead** | AI Multi-step Orchestration, Groq API Integration, Schemas, Config, GitHub & Integration | `backend/agent.py`, `backend/schemas.py`, `backend/config.py` |
 | **Member 2** | **Engineer** | Seasonal Destination Discovery, Open-Meteo Weather Service, Contextual Safety Advisories | `backend/tools/destination_tool.py`, `backend/tools/weather_tool.py`, `backend/tools/safety_tool.py`, `backend/services/weather_service.py` |
 | **Member 3** | **Engineer** | Dijkstra Corridor Shortest Path, Transit Mode Comparison, Budget Breakdown & Deficit Audit | `backend/tools/dijkstra.py`, `backend/tools/route_tool.py`, `backend/tools/transport_tool.py`, `backend/tools/budget_tool.py` |
 | **Member 4** | **Engineer** | Streamlit UI Dashboard, Form Controls, Multi-tab Results View, Session State Preservation | `frontend/app.py`, `frontend/components/`, `backend/tools/itinerary_tool.py`, `backend/tools/group_tool.py` |
@@ -99,11 +100,11 @@ Copy-Item .env.example .env
 ```
 Open `.env` and provide your credentials:
 ```env
-# Google Gemini API Key (Required for AI Orchestration)
-GEMINI_API_KEY=your_actual_gemini_api_key_here
+# Groq API Key (Required for AI Orchestration)
+GROQ_API_KEY=your_actual_groq_api_key_here
 
-# Google Gemini Model Name (Configurable: gemini-3.8-flash recommended)
-GEMINI_MODEL=gemini-3.8-flash
+# Groq Model Name (Configurable: llama-3.3-70b-versatile recommended)
+GROQ_MODEL=llama-3.3-70b-versatile
 
 # Google Maps API Key (Optional Places & Routes)
 GOOGLE_MAPS_API_KEY=
@@ -131,7 +132,7 @@ Open your browser at `http://localhost:8501`.
 
 SpiritIQ includes 37 automated tests covering schemas, destination selection, weather windows, routing corridors, budget audits, configuration masking, and agent orchestration.
 
-All unit tests use mocked Gemini and external service responses, ensuring tests run offline without network access or secret exposure:
+All unit tests use mocked Groq and external service responses, ensuring tests run offline without network access or secret exposure:
 ```powershell
 # Run the entire test suite
 python -m pytest tests/ -v
@@ -139,6 +140,7 @@ python -m pytest tests/ -v
 # Run individual test modules
 python -m pytest tests/test_agent.py -v
 python -m pytest tests/test_destination.py -v
+python -m pytest tests/test_destination_planning.py -v
 python -m pytest tests/test_weather.py -v
 python -m pytest tests/test_routes.py -v
 python -m pytest tests/test_budget.py -v
@@ -158,4 +160,4 @@ When a user submits a travel request:
 5. **Transit Comparison:** `transport_tool` benchmarks Flight, Train, Bus, and Cab travel times and fares.
 6. **Budget Audit:** `budget_tool` computes per-person allocations and alerts if the budget is constrained.
 7. **Contextual Safety:** `safety_tool` provides geography- and group-specific precautions and emergency numbers.
-8. **Gemini Synthesis:** `agent.py` prompts Gemini with tool grounding to generate an enriched day-wise itinerary matching the strict `TripPlan` Pydantic schema.
+8. **Groq Synthesis:** `agent.py` prompts Groq with tool grounding to generate an enriched day-wise itinerary matching the strict `TripPlan` Pydantic schema.

@@ -1,8 +1,7 @@
 """
 frontend/components/itinerary_view.py
 =====================================
-Renders destination matching rationale, candidate comparisons,
-and day-wise activity schedule with time windows and costs.
+Renders day-wise itinerary schedule, activity cards, and discovered destinations.
 """
 
 from __future__ import annotations
@@ -14,46 +13,18 @@ from frontend.components import render_html
 
 
 def render_itinerary_section(plan: TripPlan) -> None:
-    """Render destination selection rationale and day-wise schedule."""
+    """Render discovered destination candidates and day-wise schedule."""
     
-    # 1. Primary Destination Rationale Card
-    if plan.destinations:
-        primary_dest = plan.destinations[0]
-        highlights_str = ", ".join(primary_dest.highlights[:4]) if primary_dest.highlights else "Top regional attractions"
-        render_html(
-            f"""
-            <div style="
-                background: linear-gradient(135deg, rgba(16, 28, 58, 0.7) 0%, rgba(20, 39, 70, 0.7) 100%);
-                border: 1px solid rgba(0, 240, 255, 0.25);
-                border-radius: 14px;
-                padding: 16px 20px;
-                margin-bottom: 20px;
-            ">
-                <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
-                    <div style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">
-                        📍 Target Destination: <span style="color: #00F0FF;">{primary_dest.name}</span>
-                    </div>
-                    <span style="font-size: 0.75rem; color: #06D6A0; font-weight: 600;">
-                        Best Season: {primary_dest.best_season or 'Pleasant Period'}
-                    </span>
-                </div>
-                <div style="font-size: 0.85rem; color: #94A3B8; margin: 6px 0 10px 0;">
-                    {primary_dest.tagline or 'Curated getaway aligned with your requested budget and travel month.'}
-                </div>
-                <div style="font-size: 0.8rem; color: #F1F5F9;">
-                    <strong>Why it matches:</strong> Key highlights include <em>{highlights_str}</em>. Evaluated across climatic conditions and travel radius.
-                </div>
-            </div>
-            """
-        )
-
-    # 2. Candidate comparison cards if discovery mode was active
+    # 1. Destination candidates (if in discovery mode or multiple candidates exist)
     if plan.destinations and len(plan.destinations) > 1:
         render_html(
             """
-            <div style="margin: 16px 0 10px 0;">
-                <div class="spirit-hero-badge"><span>🌟</span> Discovered Candidates</div>
-                <h4 style="font-size: 1.1rem; margin-top: 4px;">Top Scored Destination Options</h4>
+            <div style="margin: 16px 0 12px 0;">
+                <div class="spirit-hero-badge"><span>🌟</span> Evaluated Getaways</div>
+                <h3 style="font-size: 1.35rem; margin-top: 4px;">Top Scored Destination Candidates</h3>
+                <p style="color: #475569; font-size: 0.85rem;">
+                    Scored by seasonal climate suitability, travel radius, and budget compatibility.
+                </p>
             </div>
             """
         )
@@ -71,36 +42,36 @@ def render_itinerary_section(plan: TripPlan) -> None:
                     f"""
                     <div class="spirit-card-sm" style="margin-bottom: 12px; height: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <div style="font-size: 1.05rem; font-weight: 700; color: #FFFFFF;">{dest.name}</div>
-                            <span style="font-size: 0.72rem; color: #00F0FF; font-weight: 600;">{season_str}</span>
+                            <div style="font-size: 1.15rem; font-weight: 700; color: #0F172A;">{dest.name}</div>
+                            <span style="font-size: 0.72rem; color: #0284C7; font-weight: 600;">{season_str}</span>
                         </div>
-                        <div style="font-size: 0.8rem; color: #94A3B8; margin: 4px 0 8px 0;">{dest.tagline or ''}</div>
-                        <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px;">
+                        <div style="font-size: 0.82rem; color: #475569; margin: 4px 0 10px 0;">{dest.tagline or ''}</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px;">
                             {highlights_pills}
                         </div>
-                        <div style="font-size: 0.76rem; color: #64748B; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px;">
-                            Est. Package: <strong style="color: #06D6A0; font-size: 0.9rem;">{cost_str}</strong>
+                        <div style="font-size: 0.78rem; color: #64748B; border-top: 1px solid #E2E8F0; padding-top: 8px;">
+                            Est. Package: <strong style="color: #059669; font-size: 0.95rem;">{cost_str}</strong>
                         </div>
                     </div>
                     """
                 )
-        render_html("<div style='margin-bottom: 18px;'></div>")
+        render_html("<div style='margin-bottom: 24px;'></div>")
 
-    # 3. Day-by-Day Master Schedule
+    # 2. Day-by-Day Detailed Schedule
     render_html(
         """
         <div style="margin: 12px 0 16px 0;">
-            <div class="spirit-hero-badge"><span>🗓️</span> Day-Wise Schedule</div>
-            <h3 style="font-size: 1.35rem; margin-top: 4px;">Day-by-Day Activity Timeline</h3>
-            <p style="color: #94A3B8; font-size: 0.85rem;">
-                Sequenced by proximity, optimum time windows, and balanced travel pace.
+            <div class="spirit-hero-badge"><span>🗓️</span> Master Timeline</div>
+            <h3 style="font-size: 1.35rem; margin-top: 4px;">Day-by-Day Curated Experience</h3>
+            <p style="color: #475569; font-size: 0.85rem;">
+                Sequenced by geographic proximity, ideal time-of-day light, and balanced activity pace.
             </p>
         </div>
         """
     )
 
     if not plan.itinerary:
-        st.info("No detailed daily activities generated for this plan.")
+        st.info("No detailed daily activities generated for this request.")
         return
 
     for day in plan.itinerary:
@@ -110,11 +81,12 @@ def render_itinerary_section(plan: TripPlan) -> None:
             if day.overnight_location:
                 render_html(
                     f"""
-                    <div style="font-size: 0.78rem; color: #00F0FF; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px;">
-                        <span>📍</span> Stay Location: <strong>{day.overnight_location}</strong>
+                    <div style="font-size: 0.78rem; color: #0284C7; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>📍</span> Base / Stay: <strong>{day.overnight_location}</strong>
                     </div>
                     """
                 )
+
 
             if day.activities:
                 for act in day.activities:
@@ -181,7 +153,7 @@ def render_itinerary_section(plan: TripPlan) -> None:
                         color: #94A3B8;
                         margin-top: 8px;
                     ">
-                        💡 <strong>Daily Tip:</strong> {day.day_notes}
+                        💡 <strong>Daily Advisor Tip:</strong> {day.day_notes}
                     </div>
                     """
                 )

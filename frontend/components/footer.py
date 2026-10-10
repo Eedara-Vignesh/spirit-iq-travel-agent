@@ -15,9 +15,10 @@ def render_footer() -> None:
         <div style="
             margin-top: 60px;
             padding: 32px 24px;
-            background: rgba(11, 19, 43, 0.7);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
             border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.04);
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -26,15 +27,15 @@ def render_footer() -> None:
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 1.5rem;">✈️</span>
                     <div>
-                        <span style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; color: #FFFFFF;">
-                            Spirit<span style="color: #00F0FF;">IQ</span>
+                        <span style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; color: #0F172A;">
+                            Spirit<span style="color: #0284C7;">IQ</span>
                         </span>
                         <div style="font-size: 0.75rem; color: #64748B;">Intelligent Travel Planning & Autonomous Routing Agent</div>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.78rem; color: #94A3B8;">
-                    <span class="dest-pill">⚡ Gemini 3.8 Flash</span>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.78rem; color: #475569;">
+                    <span class="dest-pill">⚡ Groq LLaMA-3.3</span>
                     <span class="dest-pill">🛣️ Dijkstra Highway Solver</span>
                     <span class="dest-pill">🌤️ Open-Meteo Integration</span>
                     <span class="dest-pill">🛡️ Dynamic Budget Safeguards</span>
@@ -42,7 +43,7 @@ def render_footer() -> None:
             </div>
 
             <div style="
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                border-top: 1px solid #E2E8F0;
                 padding-top: 14px;
                 display: flex;
                 justify-content: space-between;

@@ -22,12 +22,19 @@ def get_weather_forecast(
     location: str,
     start_date: date,
     end_date: date,
+    coordinates: Optional[Dict[str, float]] = None,
 ) -> ToolResult:
     """
     Fetch forecast and packing guidance for destination across dates.
     Uses real Open-Meteo data when within the 16-day window, or seasonal guidelines otherwise.
     """
-    coords = weather_service.resolve_coordinates(location)
+    norm_coords = None
+    if coordinates and "lat" in coordinates:
+        norm_coords = {
+            "lat": coordinates["lat"],
+            "lon": coordinates.get("lon") if "lon" in coordinates else coordinates.get("lng", 0.0),
+        }
+    coords = norm_coords or weather_service.resolve_coordinates(location)
     if not coords:
         # Default packing advice for unknown coordinate
         summary = WeatherForecastSummary(

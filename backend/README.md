@@ -1,6 +1,6 @@
 # SpiritIQ Backend Documentation
 
-The `backend/` directory encapsulates all data models, environment configuration, external service integrations, algorithmic computation (Dijkstra routing and budget optimization), and the Gemini AI agent orchestrator.
+The `backend/` directory encapsulates all data models, environment configuration, external service integrations, algorithmic computation (Dijkstra routing and budget optimization), and the Groq AI agent orchestrator.
 
 ---
 
@@ -9,7 +9,7 @@ The `backend/` directory encapsulates all data models, environment configuration
 ```text
 backend/
 ├── __init__.py             # Package exports (schemas, config)
-├── agent.py                # AI Orchestrator & Gemini caller (Member 1)
+├── agent.py                # AI Orchestrator & Groq caller (Member 1)
 ├── schemas.py              # Strict Pydantic v2 data models
 ├── config.py               # Safe environment loader with key masking
 ├── tools/                  # Granular modular tools
@@ -56,7 +56,7 @@ Configuration is managed in `backend/config.py`:
   from backend.config import get_settings
 
   settings = get_settings()
-  if settings.is_gemini_configured:
+  if settings.is_groq_configured:
       # Proceed with AI agent call
       pass
   ```

@@ -2,7 +2,7 @@
 frontend/components/budget_view.py
 ==================================
 Budget breakdown dashboard with per-person calculations, category bars,
-buffer protection indicators, and algorithmic audit provenance.
+and buffer protection indicators.
 """
 
 from __future__ import annotations
@@ -18,17 +18,10 @@ def render_budget_section(budget: Optional[BudgetBreakdown], num_travellers: int
     render_html(
         """
         <div style="margin: 12px 0 16px 0;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-                <div>
-                    <div class="spirit-hero-badge"><span>💰</span> Financial Architecture</div>
-                    <h3 style="font-size: 1.35rem; margin-top: 4px;">Expenditure Audit & Safety Buffer</h3>
-                </div>
-                <div style="font-size: 0.75rem; color: #06D6A0; background: rgba(6,214,160,0.1); padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(6,214,160,0.3);">
-                    Method: Deterministic 4-Tier Model
-                </div>
-            </div>
-            <p style="color: #94A3B8; font-size: 0.85rem; margin-top: 4px;">
-                Every line item is audited against regional tariffs with emergency buffer protection.
+            <div class="spirit-hero-badge"><span>💰</span> Financial Architecture</div>
+            <h3 style="font-size: 1.35rem; margin-top: 4px;">Expenditure Audit & Safety Buffer</h3>
+            <p style="color: #94A3B8; font-size: 0.85rem;">
+                Every line item is validated against regional market tariffs with emergency deficit protections.
             </p>
         </div>
         """
@@ -64,8 +57,8 @@ def render_budget_section(budget: Optional[BudgetBreakdown], num_travellers: int
         f"""
         <div style="margin: 20px 0 10px 0;">
             <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
-                <span style="color: #94A3B8;">Budget Consumption: <strong style="color: {'#FF5470' if is_warning else '#00F0FF'};">{spent_pct:.1f}%</strong></span>
-                <span style="color: {'#FF5470' if not budget.is_within_budget else '#06D6A0'}; font-weight: 600;">
+                <span style="color: #475569;">Budget Consumption: <strong style="color: {'#E11D48' if is_warning else '#0284C7'};">{spent_pct:.1f}%</strong></span>
+                <span style="color: {'#E11D48' if not budget.is_within_budget else '#059669'}; font-weight: 600;">
                     {'⚠️ Budget Exceeded' if not budget.is_within_budget else '✅ Sound Financial Reserve'}
                 </span>
             </div>
@@ -99,13 +92,13 @@ def render_budget_section(budget: Optional[BudgetBreakdown], num_travellers: int
 
             table_rows.append(
                 f"""
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 10px 14px; font-weight: 600; color: #FFFFFF;">
+                <tr style="border-bottom: 1px solid #E2E8F0;">
+                    <td style="padding: 10px 14px; font-weight: 600; color: #0F172A;">
                         <span style="margin-right: 6px;">{icon}</span> {cat_name}
                     </td>
-                    <td style="padding: 10px 14px; color: #06D6A0; font-weight: 700;">{amount}</td>
-                    <td style="padding: 10px 14px; color: #00F0FF; font-weight: 600;">{share}</td>
-                    <td style="padding: 10px 14px; color: #94A3B8; font-size: 0.82rem;">{notes}</td>
+                    <td style="padding: 10px 14px; color: #059669; font-weight: 700;">{amount}</td>
+                    <td style="padding: 10px 14px; color: #0284C7; font-weight: 600;">{share}</td>
+                    <td style="padding: 10px 14px; color: #475569; font-size: 0.85rem;">{notes}</td>
                 </tr>
                 """
             )
@@ -113,19 +106,20 @@ def render_budget_section(budget: Optional[BudgetBreakdown], num_travellers: int
         render_html(
             f"""
             <div style="
-                background: rgba(16, 28, 58, 0.5);
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: #FFFFFF;
+                border: 1px solid #E2E8F0;
                 border-radius: 14px;
                 overflow: hidden;
                 margin-top: 10px;
+                box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
             ">
                 <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
                     <thead>
-                        <tr style="background: rgba(255, 255, 255, 0.04); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                            <th style="padding: 12px 14px; color: #F1F5F9; font-weight: 600;">Category</th>
-                            <th style="padding: 12px 14px; color: #F1F5F9; font-weight: 600;">Amount (INR)</th>
-                            <th style="padding: 12px 14px; color: #F1F5F9; font-weight: 600;">Share</th>
-                            <th style="padding: 12px 14px; color: #F1F5F9; font-weight: 600;">Notes & Context</th>
+                        <tr style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                            <th style="padding: 12px 14px; color: #0F172A; font-weight: 700;">Category</th>
+                            <th style="padding: 12px 14px; color: #0F172A; font-weight: 700;">Amount (INR)</th>
+                            <th style="padding: 12px 14px; color: #0F172A; font-weight: 700;">Share</th>
+                            <th style="padding: 12px 14px; color: #0F172A; font-weight: 700;">Notes & Context</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -135,3 +129,4 @@ def render_budget_section(budget: Optional[BudgetBreakdown], num_travellers: int
             </div>
             """
         )
+

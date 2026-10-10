@@ -90,7 +90,7 @@ def render_destination_showcase(on_select_destination: Optional[Callable[[str], 
                 <span>🌟</span> Trending Destinations
             </div>
             <h2 style="font-size: 1.85rem; margin-bottom: 6px;">Handpicked Havens for Your Next Journey</h2>
-            <p style="color: #94A3B8; font-size: 0.95rem; margin-bottom: 20px;">
+            <p style="color: #475569; font-size: 0.95rem; margin-bottom: 20px;">
                 Explore top-rated Indian destinations, optimized for current season and climate.
                 Click <strong>Select for Planning</strong> to populate your trip form instantly.
             </p>
@@ -121,8 +121,9 @@ def render_destination_showcase(on_select_destination: Optional[Callable[[str], 
                             <div class="dest-card-title">{dest['name']}</div>
                             <span style="font-size: 0.8rem; color: #64748B;">{dest['icon']}</span>
                         </div>
-                        <div style="font-size: 0.78rem; color: #00F0FF; margin-bottom: 6px;">{dest['state']}</div>
+                        <div style="font-size: 0.78rem; color: #0284C7; margin-bottom: 6px; font-weight: 600;">{dest['state']}</div>
                         <div class="dest-card-tagline">{dest['tagline']}</div>
+
                         <div class="dest-card-tags">
                             {tags_html}
                         </div>

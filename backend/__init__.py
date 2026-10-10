@@ -12,7 +12,13 @@ try:
         TravelPace,
         TransportMode,
     )
-    from backend.config import settings, get_settings, mask_secret, test_gemini_connection
+    from backend.config import (
+        settings,
+        get_settings,
+        mask_secret,
+        test_groq_connection,
+        test_gemini_connection,
+    )
 
     __all__ = [
         "TripRequest",
@@ -24,6 +30,7 @@ try:
         "settings",
         "get_settings",
         "mask_secret",
+        "test_groq_connection",
         "test_gemini_connection",
     ]
 except ImportError:
